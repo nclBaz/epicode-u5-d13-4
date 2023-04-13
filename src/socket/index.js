@@ -1,4 +1,4 @@
-const onlineUsers = []
+let onlineUsers = []
 
 export const newConnectionHandler = socket => {
   // "connection" is NOT A CUSTOM EVENT. This is a socket.io event, it's triggered every time a new client connects!
@@ -24,5 +24,14 @@ export const newConnectionHandler = socket => {
   socket.on("sendMessage", message => {
     // 3.1 Whenever we receive the new message we have to "propagate" that message to everybody but not the sender
     socket.broadcast.emit("newMessage", message)
+  })
+
+  // 4. Listen for an event called "disconnect" (this is NOT A CUSTOM EVENT!). This event happens when an user closes the browser/tab/window
+  socket.on("disconnect", () => {
+    // 4.1 Server shall update the list of onlineUsers by removing the one that has disconnected
+    onlineUsers = onlineUsers.filter(user => user.socketId !== socket.id)
+
+    // 4.2 We have to notify everybody who is still connected by communicating the updated list
+    socket.broadcast.emit("updateOnlineUsersList", onlineUsers)
   })
 }
