@@ -19,4 +19,10 @@ export const newConnectionHandler = socket => {
     // 2.3 We have also to inform everybody else of the new user which just joined
     socket.broadcast.emit("updateOnlineUsersList", onlineUsers)
   })
+
+  // 3. Listen for an event called "sendMessage", this is triggered when a user sends a new chat message
+  socket.on("sendMessage", message => {
+    // 3.1 Whenever we receive the new message we have to "propagate" that message to everybody but not the sender
+    socket.broadcast.emit("newMessage", message)
+  })
 }
